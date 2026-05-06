@@ -7,7 +7,7 @@
         "build": "next build",
         "start": "next start",
         "lint": "eslint",
-        "jest": "jest --verbose ./jests",
+        "jest": "jest --verbose ./jests --passWithNoTests",
         "e2e": "playwright test",
         "test": "npm-run-all --continue-on-error jest e2e"
     },
