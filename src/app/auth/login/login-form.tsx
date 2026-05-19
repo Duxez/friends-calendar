@@ -3,14 +3,57 @@
 import { FormEvent, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import type { SocialProvider } from "@/auth";
+import {
+  Body1,
+  Button,
+  Card,
+  CardHeader,
+  Divider,
+  Field,
+  Input,
+  Link as FluentLink,
+  Text,
+  makeStyles,
+  tokens,
+} from "@fluentui/react-components";
+
+type SocialProvider = {
+  id: string;
+  label: string;
+};
 
 type LoginFormProps = {
   socialProviders: SocialProvider[];
 };
 
+const useStyles = makeStyles({
+  card: {
+    display: "flex",
+    flexDirection: "column",
+    rowGap: tokens.spacingVerticalM,
+    backgroundColor: tokens.colorNeutralBackground1,
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    rowGap: tokens.spacingVerticalM,
+  },
+  socialSection: {
+    display: "flex",
+    flexDirection: "column",
+    rowGap: tokens.spacingVerticalS,
+  },
+  footer: {
+    color: tokens.colorNeutralForeground3,
+  },
+  errorText: {
+    color: tokens.colorPaletteRedForeground1,
+  },
+});
+
 export function LoginForm({ socialProviders }: LoginFormProps) {
   const router = useRouter();
+  const styles = useStyles();
 
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -52,57 +95,53 @@ export function LoginForm({ socialProviders }: LoginFormProps) {
   };
 
   return (
-    <form onSubmit={onSubmit} className="mt-6 space-y-4">
-      <label className="block text-sm font-medium text-zinc-700" htmlFor="email">
-        Email
-      </label>
-      <input
-        id="email"
-        name="email"
-        type="email"
-        required
-        autoComplete="email"
-        className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 outline-none ring-zinc-300 focus:ring"
+    <Card className={styles.card}>
+      <CardHeader
+        header={<Text weight="semibold" size={500}>Log in</Text>}
+        description={<Body1>Use your email and password to sign in.</Body1>}
       />
 
-      <label className="block text-sm font-medium text-zinc-700" htmlFor="password">
-        Password
-      </label>
-      <input
-        id="password"
-        name="password"
-        type="password"
-        required
-        autoComplete="current-password"
-        className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 outline-none ring-zinc-300 focus:ring"
-      />
+      <form onSubmit={onSubmit} className={styles.form}>
+        <Field label="Email" required>
+          <Input name="email" type="email" required autoComplete="email" />
+        </Field>
 
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        <Field label="Password" required>
+          <Input
+            name="password"
+            type="password"
+            required
+            autoComplete="current-password"
+          />
+        </Field>
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="w-full rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-70"
-      >
-        {isPending ? "Signing in..." : "Sign in"}
-      </button>
+        {error ? <Text className={styles.errorText}>{error}</Text> : null}
+
+        <Button type="submit" appearance="primary" disabled={isPending}>
+          {isPending ? "Signing in..." : "Sign in"}
+        </Button>
+      </form>
 
       {socialProviders.length > 0 ? (
-        <div className="space-y-2">
-          <p className="text-xs uppercase tracking-wide text-zinc-500">or continue with</p>
+        <div className={styles.socialSection}>
+          <Divider>or continue with</Divider>
           {socialProviders.map((provider) => (
-            <button
+            <Button
               key={provider.id}
               type="button"
+              appearance="secondary"
               disabled={isPending}
               onClick={() => signIn(provider.id, { callbackUrl: getCallbackUrl() })}
-              className="w-full rounded-full border border-zinc-300 px-5 py-2.5 text-sm font-medium text-zinc-900 transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-70"
             >
               Continue with {provider.label}
-            </button>
+            </Button>
           ))}
         </div>
       ) : null}
-    </form>
+
+      <Body1 className={styles.footer}>
+        Don&apos;t have an account? <FluentLink href="/auth/register">Create one</FluentLink>
+      </Body1>
+    </Card>
   );
 }
