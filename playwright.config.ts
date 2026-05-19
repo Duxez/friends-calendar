@@ -76,5 +76,11 @@ export default defineConfig({
     command: 'npm run dev:web',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
+    env: {
+      AUTH_URL: process.env.AUTH_URL,
+      NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+      AUTH_SECRET: process.env.AUTH_SECRET,
+      DATABASE_URL: process.env.DATABASE_URL,
+    },
   },
 });
