@@ -10,7 +10,8 @@
         "start": "next start",
         "lint": "eslint",
         "jest": "jest --verbose ./jests --passWithNoTests",
-        "e2e": "playwright test",
+        "e2e:pw": "playwright test",
+        "e2e": "run-p dev:db e2e:pw",
         "test": "npm-run-all --continue-on-error jest e2e"
     },
     "dependencies": {
