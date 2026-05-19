@@ -46,6 +46,8 @@ jobs:
             echo "DATABASE_URL is not set."
             exit 1
           fi
+      - name: Generate Prisma client
+        run: npx prisma generate
       - name: Apply Prisma migrations
         run: npx prisma migrate deploy
       - name: Run jest
