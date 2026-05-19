@@ -8,10 +8,25 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: friends_calendar_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d friends_calendar_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
     env:
       AUTH_URL: http://localhost:3000
       NEXTAUTH_URL: http://localhost:3000
       AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/friends_calendar_test?schema=public
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -25,6 +40,14 @@ jobs:
             echo "AUTH_SECRET is not set. Add it in GitHub repository secrets."
             exit 1
           fi
+      - name: Verify database URL is configured
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "DATABASE_URL is not set."
+            exit 1
+          fi
+      - name: Apply Prisma migrations
+        run: npx prisma migrate deploy
       - name: Run jest
         run: npm run jest
       - name: Install Playwright Browsers
